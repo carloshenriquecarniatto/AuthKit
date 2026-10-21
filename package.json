@@ -1,6 +1,6 @@
 {
   "name": "authkit",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "AuthKit monorepo: provider-agnostic authentication UI for .NET and Angular.",
   "license": "MIT",
