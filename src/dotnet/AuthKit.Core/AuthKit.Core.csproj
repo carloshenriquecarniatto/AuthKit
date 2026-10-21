@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>AuthKit.Core</PackageId>
+    <Description>Provider-agnostic authentication contracts, models and form flow for AuthKit.</Description>
+  </PropertyGroup>
+
+</Project>

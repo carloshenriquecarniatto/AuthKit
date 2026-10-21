@@ -1,0 +1,28 @@
+# .NET
+bin/
+obj/
+artifacts/
+*.user
+*.suo
+.vs/
+TestResults/
+*.nupkg
+*.snupkg
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+*.log
+
+# Tooling
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.env
+.env.*
+*.pem
+nohup.out

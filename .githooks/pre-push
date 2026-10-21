@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Runs the fast test suites. CI runs the full matrix and the security scanners.
+set -euo pipefail
+
+[ "${AUTHKIT_SKIP_HOOKS:-0}" = "1" ] && exit 0
+
+echo "pre-push: building and testing .NET..."
+dotnet test --nologo -v q --filter "Category!=Slow" >/dev/null
+
+angular_workspace="src/angular/authkit-workspace"
+
+# Vite cannot run from a path containing "#" (upstream limitation). CI uses a clean path.
+if printf '%s' "$PWD" | grep -q '#'; then
+  echo "pre-push: path contains '#', skipping Angular tests locally (CI still runs them)."
+elif [ -d "$angular_workspace/node_modules" ]; then
+  echo "pre-push: building and testing Angular..."
+  (cd "$angular_workspace" && npm test --silent >/dev/null)
+else
+  echo "pre-push: Angular dependencies are not installed, skipping Angular tests."
+fi
+
+echo "pre-push: ok."

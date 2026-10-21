@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/dotnet/AuthKit.Blazor/AuthKit.Blazor.csproj" />
+    <Project Path="src/dotnet/AuthKit.Core/AuthKit.Core.csproj" />
+    <Project Path="src/dotnet/AuthKit.Supabase/AuthKit.Supabase.csproj" />
+    <Project Path="tests/dotnet/AuthKit.Blazor.Tests/AuthKit.Blazor.Tests.csproj" />
+    <Project Path="tests/dotnet/AuthKit.Core.Tests/AuthKit.Core.Tests.csproj" />
+    <Project Path="tests/dotnet/AuthKit.Supabase.Tests/AuthKit.Supabase.Tests.csproj" />
+  </Folder>
+</Solution>
