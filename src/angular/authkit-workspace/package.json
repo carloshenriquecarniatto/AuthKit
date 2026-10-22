@@ -4,9 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build authkit && ng build demo",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test authkit"
   },
   "private": true,
   "packageManager": "npm@11.6.2",
