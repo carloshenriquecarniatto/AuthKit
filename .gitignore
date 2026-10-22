@@ -31,3 +31,4 @@ nohup.out
 .poc.log
 docs/_site/
 docs/.jekyll-cache/
+src/angular/authkit-workspace/projects/demo/public/assets/
