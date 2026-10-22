@@ -67,7 +67,9 @@ export function createSupabaseClient(options: SupabaseAuthOptions): SupabaseClie
   const secure = parsed.protocol === 'https:' || (parsed.protocol === 'http:' && loopback);
 
   if (!secure) {
-    throw new Error('AuthKit: Supabase url must use https. Plain http is only accepted for loopback hosts.');
+    throw new Error(
+      'AuthKit: Supabase url must use https. Plain http is only accepted for loopback hosts.',
+    );
   }
 
   if (!options.anonKey) {
