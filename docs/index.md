@@ -7,10 +7,10 @@ permalink: /
 Authentication screens that are ready in one line, native to your stack.
 
 ```text
-AuthKit.Core        contracts, models, state machine, validation, theming   (zero dependencies)
+AuthKit.Core        contract, state machine, theming   (zero dependencies)
 AuthKit.Supabase    Supabase Auth provider
-AuthKit.Blazor      native Blazor components (WebAssembly, Server, Auto)
-@authkit/angular    native Angular components (standalone, signals, v22)
+AuthKit.Blazor      Blazor components (WASM, Server, Auto)
+@authkit/angular    Angular components (standalone, signals)
 ```
 
 ![Sign in form]({{ site.baseurl }}/assets/login.png)
