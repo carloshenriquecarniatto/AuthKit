@@ -236,31 +236,34 @@ Keys match `AuthMessageKey` (case-insensitive), unknown keys are ignored, missin
 English, and payloads above 1 MB are rejected. Ready-made Portuguese and Spanish bundles live in
 `samples/messages` and are what the demo loads.
 
-**Blazor**
+**Blazor** — registration only, no manual loading:
 
 ```csharp
-// From a file, a URL or a string — pick one.
-var messages = await AuthMessages.FromFileAsync("messages/pt-BR.json");
-// var messages = await AuthMessages.FromUrlAsync(http, new Uri("https://cdn.example.com/pt-BR.json"));
-// var messages = AuthMessages.FromJson(json);
+builder.Services.AddAuthKitMessagesFromJson("messages/pt-BR.json");
+// or: builder.Services.AddAuthKitMessagesFromUrl(new Uri("https://cdn.example.com/pt-BR.json"));
 
-builder.Services.AddAuthKitSupabase(
-    supabase => { /* … */ },
-    ui => ui.Messages = messages);
+builder.Services.AddAuthKitSupabase(supabase => { /* … */ });
 ```
 
-**Angular**
+`AddAuthKitBlazor` warms the catalog during host startup, before the first component renders. Other
+hosts (MAUI, console) call `await app.Services.EnsureAuthKitMessagesAsync();` once. Registration
+order does not matter, and `ui.Messages` still wins when you pass it.
+
+**Angular** — same idea:
 
 ```ts
-const messages = await loadAuthMessages('/assets/authkit.pt-BR.json');
-
-bootstrapApplication(AppComponent, {
-  providers: [provideAuthKitSupabase(config, { messages })],
-});
+providers: [
+  provideAuthKitSupabase(config),
+  provideAuthKitMessagesFromUrl('/assets/authkit.pt-BR.json'),
+];
 ```
 
-Load before bootstrap (or before DI registration in .NET): components resolve strings synchronously,
-so there is no flash of untranslated text.
+An app initializer awaits the fetch before the first render, so there is no flash of untranslated
+text. A failed load keeps the English fallback and logs a warning instead of breaking sign-in.
+
+If you prefer to control the timing yourself, `AuthMessages.FromFileAsync` /
+`AuthMessages.FromUrlAsync` / `loadAuthMessages` still return a catalog you can pass as
+`ui.Messages` / `{ messages }`.
 
 ### Extending with your own source
 

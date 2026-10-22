@@ -165,6 +165,44 @@ export class HttpAuthMessagesSource implements AuthMessagesSource {
   }
 }
 
+/**
+ * Adapter that starts with a fallback and swaps in the real catalog once loaded.
+ * Components never block: the first paint uses the fallback, then the loaded strings.
+ */
+export class DeferredAuthMessages implements AuthMessages {
+  private current: AuthMessages;
+  private loading: Promise<AuthMessages> | null = null;
+
+  constructor(
+    private readonly source: AuthMessagesSource,
+    private readonly fallback: AuthMessages = ENGLISH_AUTH_MESSAGES,
+  ) {
+    this.current = fallback;
+  }
+
+  /** Whether the real catalog has replaced the fallback. */
+  get isLoaded(): boolean {
+    return this.current !== this.fallback;
+  }
+
+  get(key: AuthMessageKey, provider?: string): string {
+    return this.current.get(key, provider);
+  }
+
+  /** Loads the catalog once; concurrent callers share the same promise and a failure can retry. */
+  ensureLoaded(): Promise<AuthMessages> {
+    this.loading ??= this.source
+      .load()
+      .then((messages) => (this.current = messages))
+      .catch((error: unknown) => {
+        this.loading = null;
+        throw error;
+      });
+
+    return this.loading;
+  }
+}
+
 /** Convenience: loads a JSON catalog from a URL. */
 export function loadAuthMessages(
   url: string,
