@@ -58,16 +58,23 @@ const browserStorage = {
 };
 
 export function createSupabaseClient(options: SupabaseAuthOptions): SupabaseClient {
-  if (!options.url || !/^https:\/\//i.test(options.url)) {
-    throw new Error('AuthKit: Supabase url is required and must use https.');
+  if (!options.url) {
+    throw new Error('AuthKit: Supabase url is required.');
+  }
+
+  const parsed = new URL(options.url);
+  const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(parsed.hostname);
+  const secure = parsed.protocol === 'https:' || (parsed.protocol === 'http:' && loopback);
+
+  if (!secure) {
+    throw new Error('AuthKit: Supabase url must use https. Plain http is only accepted for loopback hosts.');
   }
 
   if (!options.anonKey) {
     throw new Error('AuthKit: Supabase anonKey is required.');
   }
 
-  const parsedUrl = new URL(options.url);
-  if (parsedUrl.username || parsedUrl.password) {
+  if (parsed.username || parsed.password) {
     throw new Error('AuthKit: Supabase url must not contain credentials.');
   }
 
