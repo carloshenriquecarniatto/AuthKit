@@ -1,4 +1,7 @@
 ---
+description:
+  'How to customize AuthKit: theme tokens, CSS overrides and the headless provider, for Blazor and
+  Angular.'
 lang: en
 alt_lang:
   en: /customization/
@@ -281,3 +284,8 @@ bash scripts/poc-up.sh   # http://127.0.0.1:8088
 
 The demo in `projects/demo` uses the library with a custom theme and is a working reference for
 every level above.
+
+---
+
+[Markdown source](https://github.com/carloshenriquecarniatto/AuthKit/blob/main/docs/customization.md)
+· [llms.txt]({{ site.baseurl }}/llms.txt)
