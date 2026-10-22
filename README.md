@@ -95,12 +95,14 @@ OAuth replay and unsafe configuration.
 
 ```bash
 dotnet test security/AuthKit.Pentest/AuthKit.Pentest.csproj
-bash scripts/pentest-live.sh    # needs Docker; attacks a real throwaway GoTrue
+bash scripts/pentest-live.sh    # Docker: isolated stack, per-run credentials, RLS included
 ```
 
-66 offline attacks run on every pull request and block a release. The live runner signs up,
-refreshes, forges a JWT and probes account enumeration against a containerised Supabase Auth.
-Results and the findings from the first run are in [docs/pentest.md](docs/pentest.md).
+66 offline attacks run on every pull request and block a release. The live runner brings up an
+isolated Supabase stack with **per-run credentials** — JWT secret, database password and anon key
+are generated, never committed, and deleted on teardown — then attacks authentication, the token
+lifecycle and row level security through PostgREST with two real identities. Results and the
+findings from the first run are in [docs/pentest.md](docs/pentest.md).
 
 ## Status
 
