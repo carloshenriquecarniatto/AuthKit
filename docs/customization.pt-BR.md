@@ -1,4 +1,9 @@
 ---
+lang: pt
+alt_lang:
+  en: /customization/
+  pt: /personalizacao/
+  es: /personalizacion/
 layout: page
 title: Personalizando a interface
 permalink: /personalizacao/

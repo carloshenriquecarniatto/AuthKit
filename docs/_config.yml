@@ -6,3 +6,7 @@ url: https://carloshenriquecarniatto.github.io
 markdown: kramdown
 show_excerpts: false
 header_pages: []
+alt_lang:
+  en: /customization/
+  pt: /personalizacao/
+  es: /personalizacion/

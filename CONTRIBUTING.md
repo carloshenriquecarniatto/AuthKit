@@ -79,6 +79,13 @@ The version is derived from these messages. `feat` bumps the minor, `fix`/`perf`
 Escape hatch: `AUTHKIT_SKIP_HOOKS=1 git commit ...`. CI runs the same checks, so skipping only moves
 the failure.
 
+## Translations
+
+The README, the specification and the customization guide are maintained in English, Portuguese and
+Spanish. English is canonical: change it first, then update both translations in the same pull
+request. Keep code blocks, option names and links identical across languages; translate prose only.
+The language switcher lives at the top of each file and in the site header.
+
 ## Changing the contract
 
 1. Edit `contracts/authkit.contract.json`.

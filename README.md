@@ -1,5 +1,7 @@
 # AuthKit
 
+**English** · [Português](README.pt-BR.md) · [Español](README.es.md)
+
 Authentication screens that are ready in one line, native to your stack.
 
 AuthKit is a provider-agnostic authentication UI kit with **Supabase as the default provider**. It
