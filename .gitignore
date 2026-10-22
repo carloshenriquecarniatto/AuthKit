@@ -27,3 +27,5 @@ coverage/
 *.pem
 nohup.out
 .pentest.env
+.poc.pid
+.poc.log

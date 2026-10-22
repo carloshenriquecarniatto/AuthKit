@@ -104,6 +104,21 @@ are generated, never committed, and deleted on teardown — then attacks authent
 lifecycle and row level security through PostgREST with two real identities. Results and the
 findings from the first run are in [docs/pentest.md](docs/pentest.md).
 
+## Try it locally
+
+```bash
+bash scripts/poc-up.sh
+```
+
+Brings up the isolated Supabase stack (per-run credentials), builds the Angular library and the demo
+app, and serves **http://127.0.0.1:8088**. Sign up with any address — email confirmation is disabled
+in this stack — then create notes. Each account only sees its own rows, enforced by Postgres RLS.
+The session lives in `sessionStorage`; sign out and check the storage tab.
+
+```bash
+bash scripts/poc-down.sh   # stops the demo and destroys the stack
+```
+
 ## Status
 
 | Area               | State                                                                        |
