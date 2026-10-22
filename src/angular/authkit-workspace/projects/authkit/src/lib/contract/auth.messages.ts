@@ -1,6 +1,47 @@
 import type { AuthMessageKey } from './auth.models';
 
-const MESSAGES: Record<AuthMessageKey, string> = {
+/**
+ * Port: resolves user-visible strings. Implement it, or use one of the bundled adapters
+ * (DictionaryAuthMessages, JsonAuthMessages).
+ */
+export interface AuthMessages {
+  get(key: AuthMessageKey, provider?: string): string;
+}
+
+/** Keys known to the contract, used to reject typos in a JSON bundle. */
+const KNOWN_KEYS = new Set<string>([
+  'signIn',
+  'signUp',
+  'email',
+  'password',
+  'confirmPassword',
+  'forgotPassword',
+  'dontHaveAccount',
+  'haveAccount',
+  'sendResetEmail',
+  'resetEmailSent',
+  'backToSignIn',
+  'magicLink',
+  'checkYourEmail',
+  'signingIn',
+  'continueWithProvider',
+  'requiredField',
+  'invalidEmail',
+  'passwordTooShort',
+  'passwordMismatch',
+  'invalidOtp',
+  'enterOtp',
+  'verify',
+  'newPassword',
+  'updatePassword',
+  'passwordUpdated',
+  'showPassword',
+  'hidePassword',
+  'unexpectedError',
+  'sessionExpired',
+]);
+
+export const ENGLISH_STRINGS: Readonly<Record<AuthMessageKey, string>> = {
   signIn: 'Sign In',
   signUp: 'Sign Up',
   email: 'Enter your email',
@@ -32,17 +73,105 @@ const MESSAGES: Record<AuthMessageKey, string> = {
   sessionExpired: 'Your session has expired. Please sign in again.',
 };
 
-/** Resolves user-visible strings. Replace to localise or reword the UI. */
-export interface AuthMessages {
-  get(key: AuthMessageKey, provider?: string): string;
+/**
+ * Adapter: an in-memory dictionary with an optional fallback for missing keys.
+ * The default and the fastest option; it never touches the network.
+ */
+export class DictionaryAuthMessages implements AuthMessages {
+  constructor(
+    private readonly strings: Partial<Record<AuthMessageKey, string>>,
+    private readonly fallback: AuthMessages | null = null,
+  ) {}
+
+  get(key: AuthMessageKey, provider?: string): string {
+    const text = this.strings[key] ?? this.fallback?.get(key) ?? key;
+    return provider ? text.replace('{provider}', provider) : text;
+  }
 }
 
-export const ENGLISH_AUTH_MESSAGES: AuthMessages = {
-  get(key, provider) {
-    const text = MESSAGES[key] ?? key;
-    return provider ? text.replace('{provider}', provider) : text;
-  },
-};
+/** English messages, matching the wording used by supabase_auth_ui. */
+export const ENGLISH_AUTH_MESSAGES: AuthMessages = new DictionaryAuthMessages(ENGLISH_STRINGS);
+
+/** Largest accepted bundle. A message catalog is a few kilobytes. */
+export const MAXIMUM_MESSAGES_BYTES = 1024 * 1024;
+
+/**
+ * Adapter: a catalog decoded from a JSON object such as `{ "signIn": "Entrar" }`.
+ * Keys are matched case-insensitively; unknown keys are ignored and missing keys fall back.
+ */
+export class JsonAuthMessages extends DictionaryAuthMessages {
+  constructor(json: string, fallback: AuthMessages = ENGLISH_AUTH_MESSAGES) {
+    super(parseMessages(json), fallback);
+  }
+}
+
+/** Decodes a JSON bundle into typed strings. Exposed for tooling and tests. */
+export function parseMessages(json: string): Partial<Record<AuthMessageKey, string>> {
+  if (!json || json.length > MAXIMUM_MESSAGES_BYTES) {
+    throw new Error('AuthKit: the message catalog is empty or larger than 1 MB.');
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    throw new Error('AuthKit: the message catalog is not valid JSON.');
+  }
+
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('AuthKit: the message catalog must be a JSON object.');
+  }
+
+  const result: Partial<Record<AuthMessageKey, string>> = {};
+  const byLowerCase = new Map([...KNOWN_KEYS].map((key) => [key.toLowerCase(), key]));
+
+  for (const [rawKey, value] of Object.entries(parsed as Record<string, unknown>)) {
+    const key = byLowerCase.get(rawKey.toLowerCase());
+    if (key && typeof value === 'string') {
+      result[key as AuthMessageKey] = value;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Port for loading a catalog from somewhere: memory, the bundle, an API, a feature flag service.
+ * Implement it to plug your own localization backend.
+ */
+export interface AuthMessagesSource {
+  load(): Promise<AuthMessages>;
+}
+
+/** Adapter: loads a catalog from a URL (app bundle asset, CDN or your own API). */
+export class HttpAuthMessagesSource implements AuthMessagesSource {
+  constructor(
+    private readonly url: string,
+    private readonly fallback: AuthMessages = ENGLISH_AUTH_MESSAGES,
+    private readonly fetchImpl: typeof fetch = (...args) => fetch(...args),
+  ) {}
+
+  async load(): Promise<AuthMessages> {
+    const response = await this.fetchImpl(this.url, { credentials: 'same-origin' });
+
+    if (!response.ok) {
+      throw new Error(
+        `AuthKit: the message catalog at ${this.url} returned HTTP ${response.status}.`,
+      );
+    }
+
+    const json = await response.text();
+    return new JsonAuthMessages(json, this.fallback);
+  }
+}
+
+/** Convenience: loads a JSON catalog from a URL. */
+export function loadAuthMessages(
+  url: string,
+  fallback: AuthMessages = ENGLISH_AUTH_MESSAGES,
+): Promise<AuthMessages> {
+  return new HttpAuthMessagesSource(url, fallback).load();
+}
 
 /** Interpolates placeholders used by validation messages. */
 export function messageWith(text: string, values: Readonly<Record<string, string>>): string {

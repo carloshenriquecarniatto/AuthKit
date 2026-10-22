@@ -212,38 +212,96 @@ El provider también expone `capabilities` (lo que soporta el proyecto),
 
 ## Mensajes e idioma
 
-Inglés viene incluido. Reemplaza la tabla para traducir o reescribir cualquier texto por defecto.
+Inglés viene incluido. Todo lo demás es un **adapter sobre el mismo port**, así que eliges de dónde
+vienen las cadenas.
 
-```csharp
-public sealed class EsMessages : IAuthMessages
+| Port / adapter           | Úsalo cuando                                                                 |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| `IAuthMessages`          | Quieres resolver las cadenas a tu manera (base de datos, CMS, feature flags) |
+| `DictionaryAuthMessages` | Las cadenas ya están en el código                                            |
+| `JsonAuthMessages`       | Tienes un bundle JSON                                                        |
+| `FileAuthMessagesSource` | El bundle es un archivo en disco                                             |
+| `HttpAuthMessagesSource` | El bundle está en una URL, CDN o tu propia API                               |
+
+### Bundle JSON
+
+```json
 {
-    private static readonly Dictionary<AuthMessageKey, string> Strings = new()
-    {
-        [AuthMessageKey.SignIn] = "Entrar",
-        [AuthMessageKey.Email] = "Tu correo",
-        [AuthMessageKey.Password] = "Tu contraseña",
-        [AuthMessageKey.InvalidEmail] = "Introduce un correo válido",
-        [AuthMessageKey.PasswordTooShort] =
-            "La contraseña debe tener al menos {min} caracteres",
-    };
-
-    public string Resolve(AuthMessageKey key, string? provider = null) =>
-        Strings.TryGetValue(key, out var text) ? text : key.ToString();
+  "signIn": "Entrar",
+  "email": "Tu correo",
+  "passwordTooShort": "La contraseña debe tener al menos {min} caracteres"
 }
-
-builder.Services.AddAuthKitSupabase(supabase => { /* … */ },
-    ui => ui.Messages = new EsMessages());
 ```
 
+Las claves coinciden con `AuthMessageKey` (sin distinguir mayúsculas), las desconocidas se ignoran,
+las ausentes caen a inglés y los payloads de más de 1 MB se rechazan. Los bundles listos de
+portugués y español están en `samples/messages` y son los que carga la demo.
+
+**Blazor**
+
+```csharp
+// Desde archivo, URL o cadena — elige uno.
+var messages = await AuthMessages.FromFileAsync("messages/es.json");
+// var messages = await AuthMessages.FromUrlAsync(http, new Uri("https://cdn.example.com/es.json"));
+// var messages = AuthMessages.FromJson(json);
+
+builder.Services.AddAuthKitSupabase(
+    supabase => { /* … */ },
+    ui => ui.Messages = messages);
+```
+
+**Angular**
+
 ```ts
-provideAuthKitSupabase(config, {
-  messages: {
-    get: (key) => ES[key] ?? key,
-  },
+const messages = await loadAuthMessages('/assets/authkit.es.json');
+
+bootstrapApplication(AppComponent, {
+  providers: [provideAuthKitSupabase(config, { messages })],
 });
 ```
 
-La lista completa de claves es `AuthMessageKey`, en el archivo de contrato.
+Carga antes del bootstrap (o antes del registro en DI en .NET): los componentes resuelven cadenas de
+forma síncrona, así que no hay parpadeo de texto sin traducir.
+
+### Extender con tu propia fuente
+
+Implementa el port y conéctalo donde quieras:
+
+```csharp
+public sealed class DatabaseMessages : IAuthMessagesSource
+{
+    public async ValueTask<IAuthMessages> LoadAsync(CancellationToken cancellationToken = default)
+    {
+        var rows = await _repository.LoadStringsAsync(cancellationToken);
+        return AuthMessages.FromDictionary(rows, fallback: AuthMessages.English);
+    }
+}
+```
+
+```ts
+export class FeatureFlagMessages implements AuthMessagesSource {
+  async load(): Promise<AuthMessages> {
+    const bundle = await this.flags.get<string>('authkit.messages');
+    return new JsonAuthMessages(bundle);
+  }
+}
+```
+
+### Solo diccionario
+
+```csharp
+var messages = AuthMessages.FromDictionary(new Dictionary<AuthMessageKey, string>
+{
+    [AuthMessageKey.SignIn] = "Entrar"
+});
+```
+
+```ts
+const messages = new DictionaryAuthMessages({ signIn: 'Entrar' }, ENGLISH_AUTH_MESSAGES);
+```
+
+La lista completa de claves es `AuthMessageKey`, en el archivo de contrato, y el catálogo inglés
+incluido es la referencia de texto.
 
 ## Referencia de componentes
 

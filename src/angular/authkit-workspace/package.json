@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build authkit && ng build demo",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test authkit"
+    "test": "ng test authkit",
+    "prebuild": "node ../../../scripts/sync-messages.mjs"
   },
   "private": true,
   "packageManager": "npm@11.6.2",

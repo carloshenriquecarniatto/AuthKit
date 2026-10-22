@@ -210,38 +210,96 @@ toda a superfície de operações listada em `contracts/authkit.contract.json`.
 
 ## Mensagens e idioma
 
-Inglês vem embutido. Substitua a tabela para traduzir ou reescrever qualquer texto padrão.
+Inglês vem embutido. Todo o resto é um **adapter sobre o mesmo port**, então você escolhe de onde as
+strings vêm.
 
-```csharp
-public sealed class PtBrMessages : IAuthMessages
+| Port / adapter           | Use quando                                                             |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `IAuthMessages`          | Você quer resolver as strings do seu jeito (banco, CMS, feature flags) |
+| `DictionaryAuthMessages` | As strings já estão no código                                          |
+| `JsonAuthMessages`       | Você tem um bundle JSON                                                |
+| `FileAuthMessagesSource` | O bundle é um arquivo em disco                                         |
+| `HttpAuthMessagesSource` | O bundle está numa URL, CDN ou na sua API                              |
+
+### Bundle JSON
+
+```json
 {
-    private static readonly Dictionary<AuthMessageKey, string> Strings = new()
-    {
-        [AuthMessageKey.SignIn] = "Entrar",
-        [AuthMessageKey.Email] = "Seu e-mail",
-        [AuthMessageKey.Password] = "Sua senha",
-        [AuthMessageKey.InvalidEmail] = "Informe um e-mail válido",
-        [AuthMessageKey.PasswordTooShort] =
-            "A senha precisa ter pelo menos {min} caracteres",
-    };
-
-    public string Resolve(AuthMessageKey key, string? provider = null) =>
-        Strings.TryGetValue(key, out var text) ? text : key.ToString();
+  "signIn": "Entrar",
+  "email": "Seu e-mail",
+  "passwordTooShort": "A senha precisa ter pelo menos {min} caracteres"
 }
-
-builder.Services.AddAuthKitSupabase(supabase => { /* … */ },
-    ui => ui.Messages = new PtBrMessages());
 ```
 
+As chaves são `AuthMessageKey` (case-insensitive), chaves desconhecidas são ignoradas, chaves
+ausentes caem para o inglês e payloads acima de 1 MB são recusados. Os bundles prontos de português
+e espanhol ficam em `samples/messages` e são os que a demo carrega.
+
+**Blazor**
+
+```csharp
+// De arquivo, URL ou string — escolha um.
+var messages = await AuthMessages.FromFileAsync("messages/pt-BR.json");
+// var messages = await AuthMessages.FromUrlAsync(http, new Uri("https://cdn.example.com/pt-BR.json"));
+// var messages = AuthMessages.FromJson(json);
+
+builder.Services.AddAuthKitSupabase(
+    supabase => { /* … */ },
+    ui => ui.Messages = messages);
+```
+
+**Angular**
+
 ```ts
-provideAuthKitSupabase(config, {
-  messages: {
-    get: (key) => PT_BR[key] ?? key,
-  },
+const messages = await loadAuthMessages('/assets/authkit.pt-BR.json');
+
+bootstrapApplication(AppComponent, {
+  providers: [provideAuthKitSupabase(config, { messages })],
 });
 ```
 
-A lista completa de chaves é `AuthMessageKey`, no arquivo de contrato.
+Carregue antes do bootstrap (ou antes do registro no DI no .NET): os componentes resolvem strings de
+forma síncrona, então não existe flash de texto sem tradução.
+
+### Estendendo com a sua fonte
+
+Implemente o port e plugue em qualquer lugar:
+
+```csharp
+public sealed class DatabaseMessages : IAuthMessagesSource
+{
+    public async ValueTask<IAuthMessages> LoadAsync(CancellationToken cancellationToken = default)
+    {
+        var rows = await _repository.LoadStringsAsync(cancellationToken);
+        return AuthMessages.FromDictionary(rows, fallback: AuthMessages.English);
+    }
+}
+```
+
+```ts
+export class FeatureFlagMessages implements AuthMessagesSource {
+  async load(): Promise<AuthMessages> {
+    const bundle = await this.flags.get<string>('authkit.messages');
+    return new JsonAuthMessages(bundle);
+  }
+}
+```
+
+### Só dicionário
+
+```csharp
+var messages = AuthMessages.FromDictionary(new Dictionary<AuthMessageKey, string>
+{
+    [AuthMessageKey.SignIn] = "Entrar"
+});
+```
+
+```ts
+const messages = new DictionaryAuthMessages({ signIn: 'Entrar' }, ENGLISH_AUTH_MESSAGES);
+```
+
+A lista completa de chaves é `AuthMessageKey`, no arquivo de contrato, e o catálogo inglês embutido
+é a referência de texto.
 
 ## Referência dos componentes
 

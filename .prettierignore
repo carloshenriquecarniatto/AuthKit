@@ -9,3 +9,5 @@ artifacts/
 CHANGELOG.md
 package-lock.json
 *.min.*
+docs/_site/
+docs/.jekyll-cache/

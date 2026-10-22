@@ -20,7 +20,7 @@ set -a
 set +a
 
 echo "poc-up: building the Angular library and demo (this takes a minute the first time)"
-(cd "$workspace" && npx ng build authkit >/dev/null && npx ng build demo >/dev/null)
+(cd "$workspace" && npm run build >/dev/null)
 
 echo "poc-up: starting the demo server"
 AUTH_URL="http://127.0.0.1:${AUTH_PORT}" \
