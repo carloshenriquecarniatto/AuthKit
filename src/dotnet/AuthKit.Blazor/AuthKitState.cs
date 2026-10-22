@@ -49,7 +49,7 @@ public sealed class InMemoryAuthSessionStore : IAuthSessionStore
 /// dependency scanning (docs/threat-model.md, T-05). On server-side Blazor use
 /// <see cref="InMemoryAuthSessionStore"/> and keep the refresh token on the server.
 /// </remarks>
-public sealed class BrowserSessionStore : IAuthSessionStore, IAsyncDisposable
+public sealed class BrowserSessionStore : IAuthSessionStore, IAsyncDisposable, IDisposable
 {
     private const string StorageKey = "authkit.session";
 
@@ -107,8 +107,15 @@ public sealed class BrowserSessionStore : IAuthSessionStore, IAsyncDisposable
         if (_module is not null)
         {
             await _module.DisposeAsync().ConfigureAwait(false);
+            _module = null;
         }
     }
+
+    /// <summary>
+    /// Synchronous disposal for DI containers that do not await. Releasing the module reference
+    /// is enough: the JavaScript module itself is owned by the runtime.
+    /// </summary>
+    public void Dispose() => _module = null;
 
     private async ValueTask<T?> InvokeAsync<T>(string identifier, params object?[] args)
     {

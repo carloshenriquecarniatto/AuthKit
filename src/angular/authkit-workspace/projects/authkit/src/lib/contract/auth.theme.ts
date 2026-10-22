@@ -28,6 +28,11 @@ export function safeLogoUrl(theme: AuthTheme = DEFAULT_AUTH_THEME): string | nul
     return null;
   }
 
+  // "/\evil.example" becomes protocol-relative after browser normalisation.
+  if (url.includes('\\') || /[\u0000-\u001f]/.test(url)) {
+    return null;
+  }
+
   if (url.startsWith('/') && !url.startsWith('//') && !url.includes(':')) {
     return url;
   }

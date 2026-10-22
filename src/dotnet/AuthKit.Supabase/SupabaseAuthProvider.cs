@@ -98,8 +98,12 @@ public sealed class SupabaseAuthProvider : AuthProviderBase, IInitializableAuthP
         return await GuardAsync(async () =>
         {
             var session = await _client.Auth.SignInWithPassword(email, password).ConfigureAwait(false);
+
+            // The SDK returns null when the account exists but the email was never confirmed.
             return session is null
-                ? AuthResult.Failure(AuthError.From(AuthErrorCode.Unknown, "Sign in did not return a session."))
+                ? AuthResult.Failure(AuthError.From(
+                    AuthErrorCode.EmailNotConfirmed,
+                    "Please confirm your email address before signing in."))
                 : await CompleteAsync(session, cancellationToken).ConfigureAwait(false);
         }, cancellationToken).ConfigureAwait(false);
     }

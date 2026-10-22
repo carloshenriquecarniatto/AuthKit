@@ -3,6 +3,9 @@ import type { AuthError, AuthState } from './auth.models';
 /** Default minimum password length. Deliberately stricter than Supabase's floor of 6. */
 export const DEFAULT_MINIMUM_PASSWORD_LENGTH = 8;
 
+/** Upper bound accepted by the forms, so a hostile paste cannot exhaust the client. */
+export const MAXIMUM_PASSWORD_LENGTH = 1024;
+
 // Bounded, non-backtracking pattern: no nested quantifiers, so hostile input cannot trigger
 // catastrophic backtracking (ReDoS).
 const EMAIL_PATTERN = /^[^@\s]{1,64}@[^@\s.]+(\.[^@\s.]+)+$/;
@@ -19,7 +22,9 @@ export function isValidPassword(
   password: string | null | undefined,
   minimumLength: number = DEFAULT_MINIMUM_PASSWORD_LENGTH,
 ): boolean {
-  return !!password && password.length >= minimumLength;
+  return (
+    !!password && password.length >= minimumLength && password.length <= MAXIMUM_PASSWORD_LENGTH
+  );
 }
 
 export function passwordsMatch(password: string, confirmation: string): boolean {

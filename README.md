@@ -87,6 +87,21 @@ bootstrapApplication(AppComponent, {
 <ak-email (signInComplete)="onSignIn($event)" /> <ak-socials />
 ```
 
+## Penetration test
+
+The repository ships an adversarial suite that attacks the implementation, not the protocol: token
+leakage, circuit isolation, storage tampering, CSS/markup injection, ReDoS, request amplification,
+OAuth replay and unsafe configuration.
+
+```bash
+dotnet test security/AuthKit.Pentest/AuthKit.Pentest.csproj
+bash scripts/pentest-live.sh    # needs Docker; attacks a real throwaway GoTrue
+```
+
+66 offline attacks run on every pull request and block a release. The live runner signs up,
+refreshes, forges a JWT and probes account enumeration against a containerised Supabase Auth.
+Results and the findings from the first run are in [docs/pentest.md](docs/pentest.md).
+
 ## Status
 
 | Area               | State                                                                        |

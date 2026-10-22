@@ -11,6 +11,9 @@ public static partial class AuthValidation
     /// <summary>Default minimum password length. Deliberately stricter than Supabase's floor of 6.</summary>
     public const int DefaultMinimumPasswordLength = 8;
 
+    /// <summary>Upper bound accepted by the forms, so a hostile paste cannot exhaust the client.</summary>
+    public const int MaximumPasswordLength = 1024;
+
     /// <summary>
     /// Validates an email address. The pattern is non-backtracking, so hostile input cannot
     /// cause catastrophic backtracking (ReDoS); see docs/threat-model.md (T-10).
@@ -27,7 +30,9 @@ public static partial class AuthValidation
 
     /// <summary>Validates a password against the minimum length rule.</summary>
     public static bool IsValidPassword(string? password, int minimumLength = DefaultMinimumPasswordLength) =>
-        !string.IsNullOrEmpty(password) && password.Length >= minimumLength;
+        !string.IsNullOrEmpty(password) &&
+        password.Length >= minimumLength &&
+        password.Length <= MaximumPasswordLength;
 
     /// <summary>Validates that two password fields match.</summary>
     public static bool PasswordsMatch(string? password, string? confirmation) =>

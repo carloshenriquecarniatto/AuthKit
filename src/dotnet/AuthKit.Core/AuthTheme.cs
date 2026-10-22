@@ -77,6 +77,14 @@ public sealed record AuthTheme
             return null;
         }
 
+        // A relative URL must not be able to become protocol-relative after browser
+        // normalisation: "/\evil.example" is parsed as "//evil.example" by some browsers.
+        if (LogoUrl.Contains('\\', StringComparison.Ordinal) ||
+            LogoUrl.Any(char.IsControl))
+        {
+            return null;
+        }
+
         if (Uri.TryCreate(LogoUrl, UriKind.Relative, out _) &&
             !LogoUrl.StartsWith("//", StringComparison.Ordinal) &&
             !LogoUrl.Contains(':', StringComparison.Ordinal))

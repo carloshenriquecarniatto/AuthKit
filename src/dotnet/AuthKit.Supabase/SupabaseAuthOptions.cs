@@ -45,6 +45,12 @@ public sealed class SupabaseAuthOptions
                 $"SupabaseAuthOptions.Url '{Url}' is not an absolute URL.");
         }
 
+        if (!string.IsNullOrEmpty(uri.UserInfo))
+        {
+            throw new AuthKitConfigurationException(
+                "SupabaseAuthOptions.Url must not contain credentials. Remove the user:password part.");
+        }
+
         var isLoopback = uri.IsLoopback;
         if (uri.Scheme != Uri.UriSchemeHttps && !(uri.Scheme == Uri.UriSchemeHttp && isLoopback))
         {
@@ -78,10 +84,14 @@ public sealed class SupabaseAuthOptions
         {
             var payload = parts[1].Replace('-', '+').Replace('_', '/');
             payload = payload.PadRight(payload.Length + ((4 - (payload.Length % 4)) % 4), '=');
-            var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload));
-            return json.Contains("\"service_role\"", StringComparison.Ordinal);
+
+            using var document = System.Text.Json.JsonDocument.Parse(Convert.FromBase64String(payload));
+
+            return document.RootElement.TryGetProperty("role", out var role) &&
+                   role.ValueKind == System.Text.Json.JsonValueKind.String &&
+                   string.Equals(role.GetString()?.Trim(), "service_role", StringComparison.OrdinalIgnoreCase);
         }
-        catch (FormatException)
+        catch (Exception exception) when (exception is FormatException or System.Text.Json.JsonException)
         {
             return false;
         }

@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/security/">
+    <Project Path="security/AuthKit.Pentest.Live/AuthKit.Pentest.Live.csproj" />
+    <Project Path="security/AuthKit.Pentest/AuthKit.Pentest.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/dotnet/AuthKit.Blazor/AuthKit.Blazor.csproj" />
     <Project Path="src/dotnet/AuthKit.Core/AuthKit.Core.csproj" />

@@ -84,6 +84,10 @@ Before any `1.0.0` and at least once per year:
 Findings are tracked as security issues, and the release stays blocked until each is fixed or
 formally accepted in `docs/threat-model.md`.
 
+The automated half of this mandate lives in `security/AuthKit.Pentest` (offline, blocking on every
+pull request) and `security/AuthKit.Pentest.Live` (containerised GoTrue, weekly). A release requires
+both the offline suite and the scanners in `.github/workflows/security.yml` to pass.
+
 ## 7. Quality gates
 
 - Unit tests for every public behaviour in Core.

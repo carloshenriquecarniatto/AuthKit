@@ -66,6 +66,11 @@ export function createSupabaseClient(options: SupabaseAuthOptions): SupabaseClie
     throw new Error('AuthKit: Supabase anonKey is required.');
   }
 
+  const parsedUrl = new URL(options.url);
+  if (parsedUrl.username || parsedUrl.password) {
+    throw new Error('AuthKit: Supabase url must not contain credentials.');
+  }
+
   if (looksLikeServiceRoleKey(options.anonKey)) {
     throw new Error(
       'AuthKit: the supplied key looks like a service role key. Shipping it to a browser would bypass row level security.',
