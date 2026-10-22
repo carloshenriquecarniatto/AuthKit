@@ -1,9 +1,13 @@
 /**
  * Semantic Release configuration.
  *
- * One lockstep version for every artifact. The version is written to
- * src/dotnet/version.props and to the Angular package manifest by scripts/set-version.mjs,
- * then committed back so local builds and tagged sources agree.
+ * One lockstep version for every artifact. scripts/set-version.mjs stamps the version into
+ * src/dotnet/version.props and the Angular manifest during prepare, which is what the packages
+ * are built from.
+ *
+ * main is a protected branch, so the release job never commits back: it creates the tag and the
+ * GitHub release, and the artifacts carry the version. Local sources keep the development
+ * fallback version, which is overwritten at pack time by publish.sh.
  */
 export default {
   branches: ['main'],
@@ -17,18 +21,6 @@ export default {
       {
         prepareCmd: 'node scripts/set-version.mjs ${nextRelease.version}',
         publishCmd: 'bash scripts/publish.sh ${nextRelease.version}',
-      },
-    ],
-    [
-      '@semantic-release/git',
-      {
-        assets: [
-          'CHANGELOG.md',
-          'src/dotnet/version.props',
-          'src/angular/authkit-workspace/projects/authkit/package.json',
-          'package.json',
-        ],
-        message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],
     '@semantic-release/github',
