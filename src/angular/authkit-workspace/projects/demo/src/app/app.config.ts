@@ -1,11 +1,16 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { DEFAULT_AUTH_THEME, provideAuthKitSupabase, type AuthMessages } from 'authkit';
+import { DEFAULT_AUTH_THEME, provideAuthKitMessagesFromUrl, provideAuthKitSupabase } from 'authkit';
 import { demoConfig } from './config';
+import { messagesBundle } from './i18n';
 
-export function createAppConfig(messages: AuthMessages): ApplicationConfig {
+export function createAppConfig(): ApplicationConfig {
+  const bundle = messagesBundle(navigator.language);
+
   return {
     providers: [
       provideBrowserGlobalErrorListeners(),
+      // Registration is declarative: the catalog loads during app initialization, before render.
+      ...(bundle ? [provideAuthKitMessagesFromUrl(bundle)] : []),
       provideAuthKitSupabase(
         {
           url: demoConfig.url,
@@ -13,7 +18,6 @@ export function createAppConfig(messages: AuthMessages): ApplicationConfig {
           redirectTo: window.location.origin,
         },
         {
-          messages,
           theme: {
             ...DEFAULT_AUTH_THEME,
             primary: '#0f766e',

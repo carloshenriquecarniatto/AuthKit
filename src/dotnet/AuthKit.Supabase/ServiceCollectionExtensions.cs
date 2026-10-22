@@ -37,7 +37,23 @@ public static class ServiceCollectionExtensions
         configureUi?.Invoke(uiOptions);
 
         services.AddSingleton(supabaseOptions);
-        services.AddSingleton(uiOptions);
+
+        // The catalog can come from AddAuthKitMessages(...) or from the UI callback. Resolving it
+        // here keeps registration order irrelevant.
+        services.AddSingleton(provider =>
+        {
+            var messages = provider.GetService<IAuthMessages>() ?? uiOptions.Messages;
+
+            return new AuthKitOptions
+            {
+                RedirectTo = uiOptions.RedirectTo,
+                Theme = uiOptions.Theme,
+                Messages = messages,
+                MinimumPasswordLength = uiOptions.MinimumPasswordLength,
+                EnableAutomaticFormSubmission = uiOptions.EnableAutomaticFormSubmission,
+                SocialProviders = uiOptions.SocialProviders
+            };
+        });
 
         services.AddScoped(_ => new SupabaseClient(
             supabaseOptions.Url,

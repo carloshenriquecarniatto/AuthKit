@@ -11,6 +11,7 @@ export * from './lib/contract/auth.validation';
 
 // Core
 export * from './lib/core/auth-kit.options';
+export * from './lib/core/auth-kit.messages';
 export * from './lib/core/auth-kit.service';
 
 // Supabase provider

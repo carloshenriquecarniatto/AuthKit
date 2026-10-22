@@ -9,7 +9,7 @@ predeterminado**. Entrega el mismo contrato para .NET y TypeScript, el mismo mod
 de [`supabase_auth_ui`](https://pub.dev/packages/supabase_auth_ui) y ningún interop de React.
 
 ```text
-AuthKit.Core        contratos, modelos, máquina de estados, validación, tema   (cero dependencias)
+AuthKit.Core        contratos, modelos, máquina de estados, validación, tema   (sin dependencias de terceros)
 AuthKit.Supabase    provider Supabase Auth
 AuthKit.Blazor      componentes Blazor nativos (WebAssembly, Server, Auto)
 @authkit/angular    componentes Angular nativos (standalone, signals, v22)

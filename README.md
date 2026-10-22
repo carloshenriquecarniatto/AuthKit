@@ -9,7 +9,7 @@ ships the same contract for .NET and TypeScript, the same component model as
 [`supabase_auth_ui`](https://pub.dev/packages/supabase_auth_ui), and no React interop anywhere.
 
 ```text
-AuthKit.Core        contracts, models, state machine, validation, theming   (zero dependencies)
+AuthKit.Core        contracts, models, state machine, validation, theming   (no third-party dependencies)
 AuthKit.Supabase    Supabase Auth provider
 AuthKit.Blazor      native Blazor components (WebAssembly, Server, Auto)
 @authkit/angular    native Angular components (standalone, signals, v22)

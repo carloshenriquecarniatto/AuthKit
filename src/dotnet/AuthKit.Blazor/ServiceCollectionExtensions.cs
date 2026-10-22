@@ -23,6 +23,9 @@ public static class ServiceCollectionExtensions
 
         services.TryAddScoped<AuthKitState>();
 
+        // Warms a deferred catalog before the first component renders. No-op for static catalogs.
+        services.AddHostedService<AuthKitMessagesWarmup>();
+
         if (storage == AuthSessionStorageMode.BrowserSession)
         {
             services.TryAddScoped<IAuthSessionStore, BrowserSessionStore>();

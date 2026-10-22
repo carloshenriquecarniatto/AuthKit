@@ -235,31 +235,34 @@ As chaves são `AuthMessageKey` (case-insensitive), chaves desconhecidas são ig
 ausentes caem para o inglês e payloads acima de 1 MB são recusados. Os bundles prontos de português
 e espanhol ficam em `samples/messages` e são os que a demo carrega.
 
-**Blazor**
+**Blazor** — só registro, sem carregamento manual:
 
 ```csharp
-// De arquivo, URL ou string — escolha um.
-var messages = await AuthMessages.FromFileAsync("messages/pt-BR.json");
-// var messages = await AuthMessages.FromUrlAsync(http, new Uri("https://cdn.example.com/pt-BR.json"));
-// var messages = AuthMessages.FromJson(json);
+builder.Services.AddAuthKitMessagesFromJson("messages/pt-BR.json");
+// ou: builder.Services.AddAuthKitMessagesFromUrl(new Uri("https://cdn.example.com/pt-BR.json"));
 
-builder.Services.AddAuthKitSupabase(
-    supabase => { /* … */ },
-    ui => ui.Messages = messages);
+builder.Services.AddAuthKitSupabase(supabase => { /* … */ });
 ```
 
-**Angular**
+O `AddAuthKitBlazor` aquece o catálogo no startup do host, antes do primeiro componente renderizar.
+Outros hosts (MAUI, console) chamam `await app.Services.EnsureAuthKitMessagesAsync();` uma vez. A
+ordem de registro não importa, e `ui.Messages` continua tendo prioridade quando você passa.
+
+**Angular** — mesma ideia:
 
 ```ts
-const messages = await loadAuthMessages('/assets/authkit.pt-BR.json');
-
-bootstrapApplication(AppComponent, {
-  providers: [provideAuthKitSupabase(config, { messages })],
-});
+providers: [
+  provideAuthKitSupabase(config),
+  provideAuthKitMessagesFromUrl('/assets/authkit.pt-BR.json'),
+];
 ```
 
-Carregue antes do bootstrap (ou antes do registro no DI no .NET): os componentes resolvem strings de
-forma síncrona, então não existe flash de texto sem tradução.
+Um app initializer espera o fetch antes do primeiro render, então não existe flash de texto sem
+tradução. Se o carregamento falhar, o fallback em inglês é mantido e um warning é logado, sem
+quebrar o login.
+
+Se você preferir controlar o momento, `AuthMessages.FromFileAsync` / `AuthMessages.FromUrlAsync` /
+`loadAuthMessages` continuam devolvendo um catálogo para passar como `ui.Messages` / `{ messages }`.
 
 ### Estendendo com a sua fonte
 
