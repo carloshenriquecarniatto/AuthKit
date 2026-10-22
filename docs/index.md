@@ -1,4 +1,5 @@
 ---
+description: 'Native authentication UI for .NET and Angular, with Supabase as the default provider.'
 layout: page
 title: AuthKit
 permalink: /
@@ -54,3 +55,6 @@ The stack is disposable: credentials are generated per run, the database lives i
 | [Penetration test](https://github.com/carloshenriquecarniatto/AuthKit/blob/main/docs/pentest.md)                                                                                                                                                                        | Offline, live and browser attacks                          |
 | [UI parity](https://github.com/carloshenriquecarniatto/AuthKit/blob/main/docs/ui-parity.md)                                                                                                                                                                             | Widget-by-widget mapping from supabase_auth_ui             |
 | [Contributing](https://github.com/carloshenriquecarniatto/AuthKit/blob/main/CONTRIBUTING.md)                                                                                                                                                                            | Hooks, commits, contract changes                           |
+
+For machine readers, [`/llms.txt`]({{ site.baseurl }}/llms.txt) lists the canonical Markdown sources
+and the contract.
