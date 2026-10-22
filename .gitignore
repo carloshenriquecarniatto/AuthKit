@@ -29,3 +29,5 @@ nohup.out
 .pentest.env
 .poc.pid
 .poc.log
+docs/_site/
+docs/.jekyll-cache/
