@@ -26,3 +26,4 @@ coverage/
 .env.*
 *.pem
 nohup.out
+.pentest.env
