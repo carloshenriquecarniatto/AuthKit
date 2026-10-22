@@ -13,6 +13,22 @@ AuthKit.Blazor      native Blazor components (WebAssembly, Server, Auto)
 @authkit/angular    native Angular components (standalone, signals, v22)
 ```
 
+## Customizing the UI
+
+There are three levels, and the
+[documentation site](https://carloshenriquecarniatto.github.io/AuthKit/) explains each one with code
+for Blazor and Angular:
+
+- **English** —
+  [Customizing the UI](https://carloshenriquecarniatto.github.io/AuthKit/customization/)
+- **Português** —
+  [Personalizando a interface](https://carloshenriquecarniatto.github.io/AuthKit/personalizacao/)
+- **Español** —
+  [Personalizar la interfaz](https://carloshenriquecarniatto.github.io/AuthKit/personalizacion/)
+
+In short: theme tokens for colours and spacing, `ak-*` CSS classes for layout, and the headless
+provider (`IAuthProvider` / `AuthProvider`) when you want to render the form yourself.
+
 ## Why
 
 - **One contract, two SDKs.** `contracts/authkit.contract.json` is normative. A parity test in each

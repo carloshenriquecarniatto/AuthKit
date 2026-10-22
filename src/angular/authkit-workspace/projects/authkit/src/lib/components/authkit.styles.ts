@@ -16,6 +16,8 @@ export const AUTHKIT_STYLES = `
 
 .ak-logo { max-height: 48px; max-width: 180px; object-fit: contain; align-self: center; }
 .ak-field { display: flex; flex-direction: column; gap: 6px; }
+.ak-form form { display: flex; flex-direction: column; gap: var(--ak-spacing, 16px); }
+.ak-field .ak-link { align-self: flex-end; font-size: 0.8rem; }
 .ak-label { font-size: 0.875rem; color: var(--ak-text-muted, #6b7280); }
 
 .ak-input {

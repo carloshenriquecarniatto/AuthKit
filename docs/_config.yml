@@ -1,0 +1,8 @@
+title: AuthKit
+description: Native authentication UI for .NET and Angular, with Supabase as the default provider.
+theme: minima
+baseurl: /AuthKit
+url: https://carloshenriquecarniatto.github.io
+markdown: kramdown
+show_excerpts: false
+header_pages: []
