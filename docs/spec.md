@@ -1,5 +1,7 @@
 # AuthKit v0.1 — Specification
 
+**English** · [Português](spec.pt-BR.md) · [Español](spec.es.md)
+
 Status: normative for the `0.x` line. Changes to the contract require a major contract version bump
 and a parity test update on both SDKs.
 

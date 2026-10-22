@@ -1,4 +1,9 @@
 ---
+lang: en
+alt_lang:
+  en: /customization/
+  pt: /personalizacao/
+  es: /personalizacion/
 layout: page
 title: Customizing the UI
 permalink: /customization/
